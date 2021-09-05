@@ -12,10 +12,80 @@ fn read<T: FromStr>() -> T {
   s.parse().ok().expect("failed parsing")
 }
 
-trait LexicalPermutation {
-  fn next_permutation(&mut self) -> bool;
+fn main() {
+  let n: usize = read();
+  let mut rc: Vec<(usize, usize)> = vec![];
+  for _ in 0..n {
+    let r: usize = read();
+    let c: usize = read();
+    rc.push((r, c));
+  }
+  let table = solve(&rc);
+  for row in table {
+    println!("{}", row);
+  }
 }
 
+fn solve(rc: &[(usize, usize)]) -> Vec<String> {
+  let mut p: Vec<usize> = (0..8).collect();
+  let mut table: Vec<String> = vec![];
+  loop {
+    if judge(&rc, &p) {
+      for &i in &p {
+        let mut s: Vec<char> = vec!['.'; 8];
+        s[i] = 'Q';
+        let s: String = s.into_iter().collect();
+        table.push(s)
+      }
+    }
+    if !p.next_permutation() {
+      break;
+    }
+  }
+  table
+}
+
+fn judge(rc: &[(usize, usize)], p: &[usize]) -> bool {
+  let mut table = vec![vec![false; 8]; 8];
+  for (r, &c) in p.iter().enumerate() {
+    table[r][c] = true;
+  }
+  for &(r, c) in rc {
+    if !table[r][c] {
+      return false;
+    }
+  }
+  if !diag(&table) {
+    return false;
+  }
+  table.reverse();
+  if !diag(&table) {
+    return false;
+  }
+  true
+}
+
+// y = ax + b (a = -1, 0 <= b < 16
+fn diag(table: &Vec<Vec<bool>>) -> bool {
+  for b in 0..16 {
+    let mut cnt = 0;
+    for x in 0..=b {
+      let y = b - x;
+      if y < 8 && x < 8 && table[y][x] {
+        cnt += 1;
+      }
+    }
+    if cnt > 1 {
+      return false;
+    }
+  }
+  true
+}
+
+trait LexicalPermutation {
+  fn next_permutation(&mut self) -> bool;
+  fn prev_permutation(&mut self) -> bool;
+}
 impl<T> LexicalPermutation for [T] where T: Ord {
   fn next_permutation(&mut self) -> bool {
     if self.len() < 2 {
@@ -36,64 +106,43 @@ impl<T> LexicalPermutation for [T] where T: Ord {
     self[i..].reverse();
     true
   }
-}
 
-fn judge(p: &Vec<(usize, usize)>, q: &Vec<usize>) -> bool {
-  let mut board = vec![vec![false; 8]; 8];
-  for (y, &x) in q.iter().enumerate() {
-    board[y][x] = true;
-  }
-  for &(y, x) in p {
-    if !board[y][x] {
+  fn prev_permutation(&mut self) -> bool {
+    if self.len() < 2 {
       return false;
     }
-  }
-  if !diag(&board) {
-    return false;
-  }
-  board.reverse();
-  if !diag(&board) {
-    return false;
-  }
-  true
-}
-
-// y = ax + b (a = -1, 0 <= b < 16)
-fn diag(board: &Vec<Vec<bool>>) -> bool {
-  for b in 0..16 {
-    let mut cnt = 0;
-    for x in 0..=b {
-      let y = b - x;
-      if y < 8 && x < 8 && board[y][x] {
-        cnt += 1;
-      }
+    let mut i = self.len() - 1;
+    while i > 0 && self[i-1] <= self[i] {
+      i -= 1;
     }
-    if cnt > 1 {
+    if i == 0 {
       return false;
     }
+    self[i..].reverse();
+    let mut j = self.len() - 1;
+    while j >= i && self[j-1] < self[i-1] {
+      j -= 1;
+    }
+    self.swap(i-1, j);
+    true
   }
-  true
 }
 
-fn main() {
-  let n = read::<usize>();
-  let mut p = vec![(0, 0); n];
-  for i in 0..n {
-    p[i] = (read(), read());
-  }
-
-  let mut q: Vec<usize> = (0..8).collect();
-  loop {
-    if judge(&p, &q) {
-      for &x in &q {
-        let mut s: Vec<char> = vec!['.'; 8];
-        s[x] = 'Q';
-        let s: String = s.into_iter().collect();
-        println!("{}", s);
-      }
-    }
-    if !q.next_permutation() {
-      break;
-    }
+#[test]
+fn test_solve_1() {
+  let rc = vec![(2,2),(5,3)];
+  let got = solve(&rc);
+  let want = vec![
+    "......Q.",
+    "Q.......",
+    "..Q.....",
+    ".......Q",
+    ".....Q..",
+    "...Q....",
+    ".Q......",
+    "....Q...",
+  ];
+  for i in 0..8 {
+    assert_eq!(got[i], want[i]);
   }
 }
