@@ -18,26 +18,44 @@ fn main() {
   for i in 0..n {
     a[i] = read();
   }
-  let m: usize = read();
-  let mut q: Vec<usize> = vec![0; m];
-  for j in 0..m {
-    q[j] = read();
+  let q: usize = read();
+  let mut m: Vec<usize> = vec![0; q];
+  for j in 0..q {
+    m[j] = read();
   }
-  let mut ans = vec![false; m];
-  for bits in 0..(1<<n) {
+  let result = solve(n, &a, q, &m);
+  for ok in result {
+    println!("{}", ok);
+  }
+}
+
+fn solve(n: usize, a: &[usize], q: usize, m: &[usize]) -> Vec<String> {
+  let mut res = vec![String::from("no"); q];
+  for status in 0..1<<n {
     let mut sum = 0;
     for i in 0..n {
-      if (bits >> i) & 1 == 0 {
+      if status & 1 << i != 0 {
         sum += a[i];
       }
     }
-    for j in 0..m {
-      if q[j] == sum {
-        ans[j] = true;
+    for j in 0..q {
+      if m[j] == sum {
+        res[j] = String::from("yes");
       }
     }
   }
-  for ok in ans {
-    println!("{}", if ok { "yes" } else { "no" });
+  res
+}
+
+#[test]
+fn test_solve_1() {
+  let n = 5;
+  let s = vec![1,5,7,10,21];
+  let q = 4;
+  let t = vec![2,4,17,8];
+  let got = solve(n, &s, q, &t);
+  let want = vec!["no", "no", "yes", "yes"];
+  for j in 0..q {
+    assert_eq!(got[j], want[j]);
   }
 }
