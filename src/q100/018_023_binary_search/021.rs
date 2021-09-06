@@ -4,15 +4,15 @@ use std::usize::MAX;
 fn main() {
   input! {
     n: usize,
-    p: [(usize, usize); n],
+    hs: [(usize, usize); n],
   }
   let mut left = 0;
   let mut right = MAX;
-  while left < right {
+  while right - left > 1 {
     let mid = (left + right) / 2;
     let mut ok = true;
     let mut t = vec![0; n];
-    for (i, &(h, s)) in p.iter().enumerate() {
+    for (i, &(h, s)) in hs.iter().enumerate() {
       if mid < h {
         ok = false;
       } else {
@@ -28,7 +28,7 @@ fn main() {
     if ok {
       right = mid;
     } else {
-      left = mid + 1;
+      left = mid;
     }
   }
   println!("{}", right);
