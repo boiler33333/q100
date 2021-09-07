@@ -12,30 +12,35 @@ fn read<T: FromStr>() -> T {
   s.parse().ok().expect("failed parsing")
 }
 
-fn erase(h: usize, w: usize, g: &mut Vec<Vec<usize>>, y: usize, x: usize) {
+fn dfs(
+  h: usize,
+  w: usize,
+  table: &mut Vec<Vec<usize>>,
+  (x1, y1): (usize, usize),
+){
   for i in 0..9 {
-    if y == 0 && i <= 2 || y == h-1 && 6 <= i {
+    if y1 == 0 && i <= 2 || y1 == h-1 && i >= 6 {
       continue;
     }
-    if x == 0 && i % 3 == 0 || x == w-1 && i % 3 == 2 {
+    if x1 == 0 && i % 3 == 0 || x1 == w-1 && i % 3 == 2 {
       continue;
     }
-    let (x2 ,y2) = match i {
-      0 => (x - 1, y - 1),
-      1 => (x + 0, y - 1),
-      2 => (x + 1, y - 1),
-      3 => (x - 1, y + 0),
-      4 => (x + 0, y + 0),
-      5 => (x + 1, y + 0),
-      6 => (x - 1, y + 1),
-      7 => (x + 0, y + 1),
-      _ => (x + 1, y + 1),
+    let (x2, y2) = match i {
+      0 => (x1 - 1, y1 - 1),
+      1 => (x1 + 0, y1 - 1),
+      2 => (x1 + 1, y1 - 1),
+      3 => (x1 - 1, y1 + 0),
+      4 => (x1 + 0, y1 + 0),
+      5 => (x1 + 1, y1 + 0),
+      6 => (x1 - 1, y1 + 1),
+      7 => (x1 + 0, y1 + 1),
+      8 => (x1 + 1, y1 + 1),
+      _ => unreachable!(),
     };
-    if g[y2][x2] == 0 {
-      continue;
+    if table[y2][x2] > 0 {
+      table[y2][x2] = 0;
+      dfs(h, w, table, (x2, y2));
     }
-    g[y2][x2] = 0;
-    erase(h, w, g, y2, x2);
   }
 }
 
@@ -46,21 +51,102 @@ fn main() {
     if w == 0 && h == 0 {
       break;
     }
-    let mut g = vec![vec![0; w]; h];
-    for i in 0..h {
-      for j in 0..w {
-        g[i][j] = read();
-      }
-    }
-    let mut ans = 0;
+    let mut c = vec![vec![0; w]; h];
     for y in 0..h {
       for x in 0..w {
-        if g[y][x] == 1 {
-          ans += 1;
-          erase(h, w, &mut g, y, x);
-        }
+        c[y][x] = read();
       }
     }
+    let ans = solve(h, w, &mut c);
     println!("{}", ans);
   }
+}
+
+fn solve(h: usize, w: usize, table: &mut Vec<Vec<usize>>) -> usize {
+  let mut cnt = 0;
+  for y in 0..h {
+    for x in 0..w {
+      if table[y][x] > 0 {
+        cnt += 1;
+        dfs(h, w, table, (x, y))
+      }
+    }
+  }
+  cnt
+}
+
+#[test]
+fn test_solve_0() {
+  let w = 1;
+  let h = 1;
+  let mut c = vec![vec![0]];
+  let result = solve(h, w, &mut c);
+  assert_eq!(result, 0);
+}
+
+#[test]
+fn test_solve_1() {
+  let w = 2;
+  let h = 2;
+  let mut c = vec![
+    vec![0,1],
+    vec![1,0],
+  ];
+  let result = solve(h, w, &mut c);
+  assert_eq!(result, 1);
+}
+
+#[test]
+fn test_solve_2() {
+  let w = 3;
+  let h = 2;
+  let mut c = vec![
+    vec![1,1,1],
+    vec![1,1,1]
+  ];
+  let result = solve(h, w, &mut c);
+  assert_eq!(result, 1);
+}
+
+#[test]
+fn test_solve_3() {
+  let w = 5;
+  let h = 4;
+  let mut c = vec![
+    vec![1,0,1,0,0],
+    vec![1,0,0,0,0],
+    vec![1,0,1,0,1],
+    vec![1,0,0,1,0],
+  ];
+  let result = solve(h, w, &mut c);
+  assert_eq!(result, 3);
+}
+
+#[test]
+fn test_solve_4() {
+  let w = 5;
+  let h = 4;
+  let mut c = vec![
+    vec![1,1,1,0,1],
+    vec![1,0,1,0,1],
+    vec![1,0,1,0,1],
+    vec![1,0,1,1,1],
+  ];
+  let result = solve(h, w, &mut c);
+  assert_eq!(result, 1);
+}
+
+#[test]
+fn test_solve_5() {
+  let w = 5;
+  let h = 5;
+  let mut c = vec![
+    vec![1,0,1,0,1],
+    vec![0,0,0,0,0],
+    vec![1,0,1,0,1],
+    vec![0,0,0,0,0],
+    vec![1,0,1,0,1],
+  ];
+  let result = solve(h, w, &mut c);
+  assert_eq!(result, 9);
 }
