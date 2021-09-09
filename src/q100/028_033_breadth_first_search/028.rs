@@ -13,16 +13,21 @@ fn read<T: FromStr>() -> T {
   s.parse().ok().expect("failed parsing")
 }
 
-fn bfs(n: usize, g: &Vec<Vec<usize>>) -> Vec<i64> {
-  let mut dist = vec![-1;  n];
+fn bfs(
+  n: usize,
+  graph: &Vec<Vec<usize>>,
+  s: usize,
+) -> Vec<Option<usize>> {
+  let mut dist = vec![None; n];
   let mut que: VecDeque<usize> = VecDeque::new();
-  dist[0] = 0;
-  que.push_back(0);
-  while let Some(from) = que.pop_front() {
-    for &to in &g[from] {
-      if dist[to] == -1 {
-        dist[to] = dist[from] + 1;
-        que.push_back(to);
+  dist[s] = Some(0);
+  que.push_back(s);
+  while let Some(u) = que.pop_front() {
+    for &v in &graph[u] {
+      if dist[v] == None {
+        let d = dist[u].unwrap_or(0);
+        dist[v] = Some(d+1);
+        que.push_back(v);
       }
     }
   }
@@ -31,17 +36,21 @@ fn bfs(n: usize, g: &Vec<Vec<usize>>) -> Vec<i64> {
 
 fn main() {
   let n: usize = read();
-  let mut g = vec![vec![]; n];
+  let mut graph = vec![vec![]; n];
   for _ in 0..n {
     let u: usize = read();
-    let k: usize = read();
-    for _ in 0..k {
+    let d: usize = read();
+    for _ in 0..d {
       let v: usize = read();
-      g[u-1].push(v-1);
+      graph[u-1].push(v-1);
     }
   }
-  let dist = bfs(n, &g);
-  for (i, v) in dist.iter().enumerate() {
-    println!("{} {}", i+1, v);
+  let dist = bfs(n, &graph, 0);
+  for i in 0..n {
+    if let Some(d) = dist[i] {
+      println!("{} {}", i+1, d);
+    } else {
+      println!("{} -1", i+1);
+    }
   }
 }
