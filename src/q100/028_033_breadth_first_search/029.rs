@@ -2,61 +2,51 @@ use proconio::input;
 use std::collections::VecDeque;
 
 fn bfs(
-  r: usize,
-  c: usize,
+  h: usize,
+  w: usize,
   table: &Vec<Vec<char>>,
   sy: usize,
   sx: usize,
   gy: usize,
   gx: usize,
-) -> usize {
-  let mut dist: Vec<Vec<i64>> = vec![vec![-1; c]; r];
+) -> Option<usize> {
+  let mut dist = vec![vec![None; w]; h];
   let mut que: VecDeque<(usize, usize)> = VecDeque::new();
-  dist[sy][sx] = 0;
+  dist[sy][sx] = Some(0);
   que.push_back((sx, sy));
-  while let Some((x, y)) = que.pop_front() {
-    if x == gx && y == gy {
-      break;
-    }
+  while let Some((ux, uy)) = que.pop_front() {
     for i in 0..4 {
-      if y == 0 && i == 2 || y == r - 1 && i == 0{
+      if uy == 0 && i == 0 || uy == h-1 && i == 2 {
         continue;
       }
-      if x == 0 && i == 3 || x == c - 1 && i == 1 {
+      if ux == 0 && i == 3 || ux == w-1 && i == 1 {
         continue;
       }
-      let (x2, y2) = match i {
-        0 => (x + 0, y + 1),
-        1 => (x + 1, y + 0),
-        2 => (x + 0, y - 1),
-        _ => (x - 1, y + 0),
+      let (vx, vy) = match i {
+        0 => (ux + 0, uy - 1),
+        1 => (ux + 1, uy + 0),
+        2 => (ux + 0, uy + 1),
+        _ => (ux - 1, uy + 0),
       };
-      if table[y2][x2] == '#' || dist[y2][x2] >= 0 {
+      if table[vy][vx] == '#' || dist[vy][vx] != None {
         continue;
       }
-      dist[y2][x2] = dist[y][x] + 1;
-      que.push_back((x2, y2));
+      let d = dist[uy][ux].unwrap();
+      dist[vy][vx] = Some(d+1);
+      que.push_back((vx, vy));
     }
   }
-  dist[gy][gx] as usize
+  dist[gy][gx]
 }
 
 fn main() {
   input! {
-    r: usize,
-    c: usize,
-    sy: usize,
-    sx: usize,
-    gy: usize,
-    gx: usize,
-    s: [String; r],
+    r: usize, c: usize,
+    sy: usize, sx: usize,
+    gy: usize, gx: usize,
+    table: [String; r],
   }
-  let mut table: Vec<Vec<char>> = vec![vec!['.'; c]; r];
-  for y in 0..r {
-    for (x, c) in s[y].chars().enumerate() {
-      table[y][x] = c;
-    }
-  }
+  let table: Vec<Vec<char>> = table.iter().map(|s| s.chars().collect()).collect();
   let ans = bfs(r, c, &table, sy-1, sx-1, gy-1, gx-1);
-  println!("{}", ans);
+  println!("{}", ans.unwrap());
 }
