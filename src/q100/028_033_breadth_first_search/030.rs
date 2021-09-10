@@ -4,75 +4,67 @@ use std::collections::VecDeque;
 fn bfs(
   h: usize,
   w: usize,
-  table: &Vec<Vec<char>>,
+  wall: &Vec<Vec<bool>>,
   sy: usize,
   sx: usize,
   gy: usize,
   gx: usize,
-) -> usize {
-  let mut dist: Vec<Vec<i64>> = vec![vec![-1; w]; h];
+) -> Option<usize> {
+  let mut dist = vec![vec![None; w]; h];
   let mut que: VecDeque<(usize, usize)> = VecDeque::new();
-  dist[sy][sx] = 0;
+  dist[sy][sx] = Some(0);
   que.push_back((sx, sy));
-  while let Some((x, y)) = que.pop_front() {
-    if x == gx && y == gy {
-      break;
-    }
+  while let Some((ux, uy)) = que.pop_front() {
     for i in 0..4 {
-      if y == 0 && i == 2 || y == h - 1 && i == 0{
+      if uy == 0 && i == 0 || uy == h-1 && i == 2 {
         continue;
       }
-      if x == 0 && i == 3 || x == w - 1 && i == 1 {
+      if ux == 0 && i == 3 || ux == w-1 && i == 1 {
         continue;
       }
-      let (x2, y2) = match i {
-        0 => (x + 0, y + 1),
-        1 => (x + 1, y + 0),
-        2 => (x + 0, y - 1),
-        _ => (x - 1, y + 0),
+      let (vx, vy) = match i {
+        0 => (ux + 0, uy - 1),
+        1 => (ux + 1, uy + 0),
+        2 => (ux + 0, uy + 1),
+        _ => (ux - 1, uy + 0),
       };
-      if table[y2][x2] == 'X' || dist[y2][x2] >= 0 {
+      if wall[vy][vx] || dist[vy][vx] != None {
         continue;
       }
-      dist[y2][x2] = dist[y][x] + 1;
-      que.push_back((x2, y2));
+      let d = dist[uy][ux].unwrap();
+      dist[vy][vx] = Some(d+1);
+      que.push_back((vx, vy));
     }
   }
-  dist[gy][gx] as usize
+  dist[gy][gx]
 }
 
 fn main() {
   input! {
-    h: usize,
-    w: usize,
-    n: usize,
-    s: [String; h],
+    h: usize, w: usize, n: usize,
+    table: [String; h],
   }
-  let mut table: Vec<Vec<char>> = vec![vec!['.'; w]; h];
+  let mut wall: Vec<Vec<bool>> = vec![vec![false; w]; h];
+  let mut point: Vec<(usize, usize)> = vec![(0, 0); n+1];
   for y in 0..h {
-    for (x, c) in s[y].chars().enumerate() {
-      table[y][x] = c;
-    }
-  }
-  let mut p = vec![(0, 0); n+1];
-  for y in 0..h {
-    for x in 0..w {
-      match table[y][x] {
-        'X' | '.' => {
+    for (x, c) in table[y].chars().enumerate() {
+      match c {
+        '.' => {},
+        'X' => wall[y][x] = true,
+        'S' => point[0] = (x, y),
+        num => {
+          let i = num.to_digit(10).unwrap() as usize;
+          point[i] = (x, y);
         },
-        'S' => {
-          p[0] = (x, y);
-        },
-        c => {
-          let i = c.to_digit(10).unwrap() as usize;
-          p[i] = (x, y);
-        }
       }
     }
   }
   let mut ans = 0;
   for i in 0..n {
-    ans += bfs(h, w, &table, p[i].1, p[i].0, p[i+1].1, p[i+1].0);
+    let (sx, sy) = point[i];
+    let (gx, gy) = point[i+1];
+    let d = bfs(h, w, &wall, sy, sx, gy, gx);
+    ans += d.unwrap_or(0);
   }
   println!("{}", ans);
 }
