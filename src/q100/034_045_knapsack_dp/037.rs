@@ -1,7 +1,7 @@
 use std::cmp::min;
-use std::usize::MAX;
 use std::io::*;
 use std::str::FromStr;
+use std::usize::MAX;
 
 fn read<T: FromStr>() -> T {
   let s = stdin();
@@ -18,19 +18,18 @@ fn main() {
   let n: usize = read();
   let m: usize = read();
   let mut c = vec![0; m];
-  for j in 0..m {
-    c[j] = read();
+  for i in 0..m {
+    c[i] = read();
   }
   c.sort();
   let mut dp = vec![MAX; n+1];
   dp[0] = 0;
-  for i in 0..n {
-    for j in 0..m {
-      if i + c[j] > n {
-        break;
+  for i in 0..m {
+    for j in 0..=n {
+      if j >= c[i] {
+        dp[j] = min(dp[j], dp[j-c[i]]+1);
       }
-      dp[i+c[j]] = min(dp[i+c[j]], dp[i]+1);
-    } 
+    }
   }
   println!("{}", dp[n]);
 }
