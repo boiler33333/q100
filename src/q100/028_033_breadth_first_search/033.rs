@@ -1,63 +1,61 @@
 use proconio::input;
 use std::collections::VecDeque;
 
-fn bfs(h: usize, w: usize, table: &Vec<Vec<char>>) -> i64 {
-  let mut dist = vec![vec![-1; w]; h];
-  let mut que: VecDeque<(usize, usize)> = VecDeque::new();
-  dist[0][0] = 0;
-  que.push_back((0, 0));
-  while let Some((x, y)) = que.pop_front() {
-    if x == w-1 && y == h-1 {
-      break;
-    }
+fn bfs(
+  h: usize,
+  w: usize,
+  table: &Vec<Vec<char>>,
+  (sx, sy): (usize, usize),
+  (gx, gy): (usize, usize),
+) -> usize {
+  let mut dist = vec![vec![0; w]; h];
+  let mut que = VecDeque::new();
+  dist[sy][sx] = 1;
+  que.push_back((sx, sy));
+  while let Some((ux, uy)) = que.pop_front() {
     for i in 0..4 {
-      if y == 0 && i == 2 || y == h-1 && i == 0 {
+      if uy == 0 && i == 0 || uy == h-1 && i == 2 {
         continue;
       }
-      if x == 0 && i == 3 || x == w-1 && i == 1 {
+      if ux == 0 && i == 3 || ux == w-1 && i == 1 {
         continue;
       }
-      let (x2, y2) = match i {
-        0 => (x + 0, y + 1),
-        1 => (x + 1, y + 0),
-        2 => (x + 0, y - 1),
-        _ => (x - 1, y + 0),
+      let (vx, vy) = match i {
+        0 => (ux + 0, uy - 1),
+        1 => (ux + 1, uy + 0),
+        2 => (ux + 0, uy + 1),
+        _ => (ux - 1, uy + 0),
       };
-      if table[y2][x2] == '#' || dist[y2][x2] >= 0 {
+      if table[vy][vx] == '#' {
         continue;
       }
-      dist[y2][x2] = dist[y][x] + 1;
-      que.push_back((x2, y2));
+      if dist[vy][vx] == 0 {
+        dist[vy][vx] = dist[uy][ux] + 1;
+        que.push_back((vx, vy));
+      }
     }
   }
-  dist[h-1][w-1]
+  dist[gy][gx]
 }
 
 fn main() {
   input! {
-    h: usize,
-    w: usize,
+    h: usize, w: usize,
     s: [String; h],
   }
-  let mut table = vec![vec!['.'; w]; h];
-  for y in 0..h {
-    for (x, c) in s[y].chars().enumerate() {
-      table[y][x] = c;
-    }
+  let table: Vec<Vec<char>> = s.iter().map(|x| x.chars().collect()).collect();
+  let cnt = bfs(h, w, &table, (0, 0), (w-1, h-1));
+  if cnt == 0 {
+    println!("-1");
+    return;
   }
-  let dist = bfs(h, w, &table);
-  if dist < 0 {
-    println!("{}", dist);
-  } else {
-    let dist = dist as usize;
-    let mut ans = w * h - dist - 1;
-    for y in 0..h {
-      for x in 0..w {
-        if table[y][x] == '#' {
-          ans -= 1;
-        }
+  let mut ans = h * w - cnt;
+  for y in 0..h {
+    for x in 0..w {
+      if table[y][x] == '#' {
+        ans -= 1;
       }
     }
-    println!("{}", ans);
   }
+  println!("{}", ans);
 }
