@@ -1,7 +1,7 @@
 use std::cmp::min;
-use std::usize::MAX;
 use std::io::*;
 use std::str::FromStr;
+use std::usize::MAX;
 
 fn read<T: FromStr>() -> T {
   let s = stdin();
@@ -17,29 +17,29 @@ fn read<T: FromStr>() -> T {
 fn main() {
   let v: usize = read();
   let e: usize = read();
-  let mut g = vec![vec![]; v];
+  let mut graph = vec![vec![]; v];
   for _ in 0..e {
     let s: usize = read();
     let t: usize = read();
     let d: usize = read();
-    g[s].push((t, d));
+    graph[s].push((t, d));
   }
-  let mut dp = vec![vec![MAX; v]; 1<<v];
+  let mut dp = vec![vec![MAX; 1<<v]; v];
   dp[0][0] = 0;
   for state in 0..1<<v {
-    for from in 0..v {
-      if dp[state][from] == MAX {
+    for s in 0..v {
+      if dp[s][state] == MAX {
         continue;
       }
-      for &(to, d) in &g[from] {
-        if state & (1 << to) > 0 {
+      for &(t, d) in &graph[s] {
+        if state & 1 << t > 0 {
           continue;
         }
-        dp[state|1<<to][to] = min(dp[state|1<<to][to], dp[state][from] + d);
+        dp[t][state|1<<t] = min(dp[t][state|1<<t], dp[s][state] + d);
       }
     }
   }
-  let ans = dp[(1<<v)-1][0];
+  let ans = dp[0][(1<<v)-1];
   if ans == MAX {
     println!("-1");
   } else {
