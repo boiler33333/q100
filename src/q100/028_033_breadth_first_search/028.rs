@@ -25,8 +25,7 @@ fn bfs(
   while let Some(u) = que.pop_front() {
     for &v in &graph[u] {
       if dist[v] == None {
-        let d = dist[u].unwrap_or(0);
-        dist[v] = Some(d+1);
+        dist[v] = dist[u].and_then(|x| Some(x+1));
         que.push_back(v);
       }
     }
