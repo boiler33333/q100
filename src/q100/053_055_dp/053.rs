@@ -18,7 +18,7 @@ fn main() {
   let mut dp = vec![MAX; n+1];
   for _ in 0..n {
     let a = read::<usize>();
-    let i = match dp.binary_search(&a) { Ok(i) => i, Err(i) => i };
+    let i = dp.binary_search(&a).unwrap_or_else(|x| x);
     dp[i] = a;
   }
   let ans = dp.iter().position(|&x| x == MAX).unwrap();
