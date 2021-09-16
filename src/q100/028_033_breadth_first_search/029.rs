@@ -31,8 +31,7 @@ fn bfs(
       if table[vy][vx] == '#' || dist[vy][vx] != None {
         continue;
       }
-      let d = dist[uy][ux].unwrap();
-      dist[vy][vx] = Some(d+1);
+      dist[vy][vx] = dist[uy][ux].and_then(|d| Some(d+1));
       que.push_back((vx, vy));
     }
   }
