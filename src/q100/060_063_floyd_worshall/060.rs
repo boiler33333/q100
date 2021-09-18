@@ -1,8 +1,7 @@
 use std::cmp::min;
 use std::io::*;
 use std::str::FromStr;
-
-const INF: i64 = 1 << 60;
+use std::i64::MAX;
 
 fn read<T: FromStr>() -> T {
   let s = stdin();
@@ -18,15 +17,15 @@ fn read<T: FromStr>() -> T {
 fn main() {
   let v: usize = read();
   let e: usize = read();
-  let mut dp = vec![vec![INF; v]; v];
+  let mut dp = vec![vec![MAX/2; v]; v];
+  for i in 0..v {
+    dp[i][i] = 0;
+  }
   for _ in 0..e {
     let s: usize = read();
     let t: usize = read();
     let d: i64 = read();
     dp[s][t] = d;
-  }
-  for i in 0..v {
-    dp[i][i] = 0;
   }
   for k in 0..v {
     for i in 0..v {
@@ -46,7 +45,7 @@ fn main() {
       if j > 0 {
         print!(" ");
       }
-      if dp[i][j] < INF/2 {
+      if dp[i][j] <= 9_900 * 20_000_000 {
         print!("{}", dp[i][j]);
       } else {
         print!("INF");
