@@ -1,29 +1,43 @@
 use proconio::input;
 
-const MOD: i64 = 1e5 as i64;
-
 fn main() {
   input! {
-    n: usize,
-    m: usize,
-    mut d: [i64; n-1],
-    a: [i64; m],
+    n: usize,      //宿場町の個数
+    m: usize,      //旅の日数
+    s: [i64; n-1], //宿場町間の距離
+    a: [i64; m],   //移動
   }
-  d.insert(0, 0);
-  for i in 1..n {
-    d[i] += d[i-1];
+  let ans = solve(n, m, &s, &a);
+  println!("{}", ans);
+}
+
+fn solve(n: usize, m: usize, s: &[i64], a: &[i64]) -> i64 {
+  let mut acc = s.to_vec();
+  acc.insert(0, 0);
+  for i in 0..n-1 {
+    acc[i+1] += acc[i];
   }
-  let mut ans = 0;
+  let mut ret = 0;
   let mut u = 0;
   for i in 0..m {
     let v = u + a[i];
     {
       let u = u as usize;
       let v = v as usize;
-      ans += (d[v] - d[u]).abs();
+      ret += (acc[v] - acc[u]).abs();
+      ret %= 100000;
     }
-    ans %= MOD;
     u = v;
   }
-  println!("{}", ans);
+  ret
+}
+
+#[test]
+fn test_solve_1() {
+  let n = 7;
+  let m = 5;
+  let s = vec![2,1,1,3,2,1];
+  let a = vec![2,-1,3,2,-3];
+  let got = solve(n, m, &s, &a);
+  assert_eq!(got, 18);
 }
