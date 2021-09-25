@@ -4,17 +4,17 @@ const PI: f64 = 3.14159265358979323846264338327950288;
 
 fn main() {
   input! { a: f64, b: f64, x: f64 }
-  let v = a * a * b;
-  let theta = if x < v / 2.0 {
-    // 水 = 三角形 * 奥行き
-    // x = (a2 * b / 2.0) * a
-    let a2 = 2.0 * x / (a * b);
+  let s = x / a;
+  let rad = if s < a * b / 2.0 {
+    // s = a2 * b / 2.0（三角形）
+    let a2 = 2.0 * s / b;
     (b/a2).atan()
   } else {
-    // 水 = 台形 * 奥行き
-    // x = ((b2 + b) * a / 2.0) * a
-    let b2 = (2.0 * x) / (a * a) - b;
-    ((b-b2)/a).atan()
+    // s = (b2 + b) * a / 2.0（台形）
+    let b2 = (2.0 * s / a) - b;
+    ((b - b2)/a).atan()
   };
-  println!("{:.10}", theta * 180.0 / PI);
+  // rad = ans / 180.0 * PI
+  let ans = rad * 180.0 / PI;
+  println!("{:.10}", ans);
 }
