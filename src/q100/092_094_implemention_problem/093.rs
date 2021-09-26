@@ -2,74 +2,72 @@ use proconio::input;
 use std::cmp::max;
 
 fn main() {
-  input! { h: usize, w: usize, k: usize, s: [String; h] }
-  let mut c: Vec<Vec<usize>> = vec![vec![0; w]; h];
-  for y in 0..h {
-    for (x, v) in s[y].bytes().enumerate() {
-      c[y][x] = (v - 48) as usize;
-    }
-  }
+  input! { h: usize, w: usize, k: usize, c: [String; h] }
+  let c: Vec<Vec<usize>> = c
+    .iter()
+    .map(|s| s.bytes().map(|b| (b-48) as usize).collect())
+    .collect();
   let mut ans = 0;
   for y in 0..h {
     for x in 0..w {
-      let mut c2 = c.clone();
-      c2[y][x] = 0;
-      let point = play(h, w, k, &mut c2);
-      ans = max(ans, point);
+      let mut table = c.clone();
+      table[y][x] = 0;
+      fall(h, w, &mut table);
+      let points = solve(h, w, k, &mut table); 
+      ans = max(ans, points);
     }
   }
   println!("{}", ans);
 }
 
-fn play(h: usize, w: usize, k: usize, c: &mut Vec<Vec<usize>>) -> usize {
-  let mut point = 0;
+fn solve(h: usize, w: usize, k: usize, table: &mut Vec<Vec<usize>>) -> usize {
+  let mut points = 0;
   let mut times = 0;
-  down_blocks(h, w, c);
   loop {
-    let blocks = remove_blocks(h, w, k, c);
+    let blocks = delete(h, w, k, table);
     if blocks.len() == 0 {
       break;
     }
-    for (v, d) in blocks {
-      point += 2usize.pow(times) * v * d;
+    for (v, n) in blocks {
+      points += 2usize.pow(times) * v * n;
     }
-    down_blocks(h, w, c);
+    fall(h, w, table);
     times += 1;
   }
-  point
+  points
 }
 
-fn remove_blocks(h: usize, w: usize, k: usize, c: &mut Vec<Vec<usize>>) -> Vec<(usize, usize)> {
-  let mut res: Vec<(usize, usize)> = Vec::new();
+fn delete(h: usize, w: usize, k: usize, table: &mut Vec<Vec<usize>>) -> Vec<(usize, usize)> {
+  let mut blocks = vec![];
   for y in 0..h {
     for x in 0..w {
-      if c[y][x] == 0 {
+      if table[y][x] == 0 {
         continue;
       }
-      let mut d = 1;
-      while x + d < w && c[y][x] == c[y][x+d] {
-        d += 1;
+      let mut n = 1;
+      while x + n < w && table[y][x] == table[y][x+n] {
+        n += 1;
       }
-      if d < k {
+      if n < k {
         continue;
       }
-      res.push((c[y][x], d));
-      for j in 0..d {
-        c[y][x+j] = 0;
+      blocks.push((table[y][x], n));
+      for i in 0..n {
+        table[y][x+i] = 0;
       }
     }
   }
-  res
+  blocks
 }
 
-fn down_blocks(h: usize, w: usize, c: &mut Vec<Vec<usize>>) {
-  for hi in 1..h {
-    for y in (hi..h).rev() {
+fn fall(h: usize, w: usize, table: &mut Vec<Vec<usize>>) {
+  for i in 1..h {
+    for y in (i..h).rev() {
       for x in 0..w {
-        if c[y][x] == 0 {
-          let tmp = c[y-1][x];
-          c[y-1][x] = c[y][x];
-          c[y][x] = tmp;
+        if table[y][x] == 0 {
+          let tmp = table[y][x];
+          table[y][x] = table[y-1][x];
+          table[y-1][x] = tmp;
         }
       }
     }
