@@ -26,59 +26,123 @@ fn main() {
         table[y][x] = read();
       }
     }
-    let point = play(h, w, k, &mut table);
-    println!("{}", point);
+    let ans = solve(h, w, k, &mut table);
+    println!("{}", ans);
   }
 }
 
-fn play(h: usize, w: usize, k: usize, table: &mut Vec<Vec<usize>>) -> usize {
-  let mut point = 0;
+fn solve(h: usize, w: usize, k: usize, table: &mut Vec<Vec<usize>>) -> usize {
+  let mut points = 0;
   loop {
-    let blocks = remove_blocks(h, w, k, table);
+    let blocks = delete(h, w, k, table);
     if blocks.len() == 0 {
       break;
     }
-    for (v, d) in blocks {
-      point += v * d;
+    for (v, n) in blocks {
+      points += v * n;
     }
-    down_blocks(h, w, table);
+    fall(h, w, table);
   }
-  point
+  points
 }
 
-fn remove_blocks(h: usize, w: usize, k: usize, table: &mut Vec<Vec<usize>>) -> Vec<(usize, usize)> {
-  let mut res: Vec<(usize, usize)> = Vec::new();
+fn delete(h: usize, w: usize, k: usize, table: &mut Vec<Vec<usize>>) -> Vec<(usize, usize)> {
+  let mut blocks = vec![];
   for y in 0..h {
     for x in 0..w {
       if table[y][x] == 0 {
         continue;
       }
-      let mut d = 1;
-      while x + d < w && table[y][x] == table[y][x+d] {
-        d += 1;
+      let mut n = 1;
+      while x + n < w && table[y][x] == table[y][x+n] {
+        n += 1;
       }
-      if d < k {
+      if n < k {
         continue;
       }
-      res.push((table[y][x], d));
-      for j in 0..d {
-        table[y][x+j] = 0;
+      blocks.push((table[y][x], n));
+      for i in 0..n {
+        table[y][x+i] = 0;
       }
     }
   }
-  res
+  blocks
 }
 
-fn down_blocks(h: usize, w: usize, table: &mut Vec<Vec<usize>>) {
-  for hi in 1..h {
-    for y in (hi..h).rev() {
+fn fall(h: usize, w: usize, table: &mut Vec<Vec<usize>>) {
+  for i in 1..h {
+    for y in (i..h).rev() {
       for x in 0..w {
         if table[y][x] == 0 {
-          let tmp = table[y-1][x];
-          table[y-1][x] = table[y][x];
-          table[y][x] = tmp;
+          let tmp = table[y][x];
+          table[y][x] = table[y-1][x];
+          table[y-1][x] = tmp;
         }
       }
     }
   }
+}
+
+#[test]
+fn test_solve_1() {
+  let mut table = vec![
+    vec![6,9,9,9,9],
+  ];
+  let got = solve(1, 5, 3, &mut table);
+  assert_eq!(got, 36);
+}
+
+#[test]
+fn test_solve_2() {
+  let mut table = vec![
+    vec![5,9,5,5,9],
+    vec![5,5,6,9,9],
+    vec![4,6,3,6,9],
+    vec![3,3,2,9,9],
+    vec![2,2,1,1,1],
+  ];
+  let got = solve(5, 5, 3, &mut table);
+  assert_eq!(got, 38);
+}
+
+#[test]
+fn test_solve_3() {
+  let mut table = vec![
+    vec![3,5,6,5,6],
+    vec![2,2,2,8,3],
+    vec![6,2,5,9,2],
+    vec![7,7,7,6,1],
+    vec![4,6,6,4,9],
+    vec![8,9,1,1,8],
+    vec![5,6,1,8,1],
+    vec![6,8,2,1,2],
+    vec![9,6,3,3,5],
+    vec![5,3,8,8,8],
+  ];
+  let got = solve(10, 5, 3, &mut table);
+  assert_eq!(got, 99);
+}
+
+#[test]
+fn test_solve_4() {
+  let mut table = vec![
+    vec![1,2,3,4,5],
+    vec![6,7,8,9,1],
+    vec![2,3,4,5,6],
+    vec![7,8,9,1,2],
+    vec![3,4,5,6,7],
+  ];
+  let got = solve(5, 5, 3, &mut table);
+  assert_eq!(got, 0);
+}
+
+#[test]
+fn test_solve_5() {
+  let mut table = vec![
+    vec![2,2,8,7,4],
+    vec![6,5,7,7,7],
+    vec![8,8,9,9,9],
+  ];
+  let got = solve(3, 5, 3, &mut table);
+  assert_eq!(got, 72);
 }
