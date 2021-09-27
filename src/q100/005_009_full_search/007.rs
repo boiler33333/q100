@@ -1,6 +1,6 @@
 use proconio::input;
-use std::collections::HashSet;
 use std::cmp::max;
+use std::collections::HashSet;
 
 fn main() {
   input! {
@@ -11,26 +11,27 @@ fn main() {
   println!("{}", ans);
 }
 
-fn solve(n: usize, xy: &Vec<(i64, i64)>) -> i64 {
-  let hs: HashSet::<(i64, i64)> = xy.iter().cloned().collect();
-  let mut ans = 0;
-  for i in 0..n {
-    for j in 0..n {
-      if i == j {
+fn solve(_: usize, xy: &[(i64, i64)]) -> i64 {
+  let mut hs = HashSet::new();
+  for &(x, y) in xy {
+    hs.insert((x, y));
+  }
+  let mut ret = 0;
+  for &(x1, y1) in xy {
+    for &(x2, y2) in xy {
+      if x1 == x2 && y1 == y2 {
         continue;
       }
-      let (x1, y1) = xy[i];
-      let (x2, y2) = xy[j];
       let (ax, ay) = (x2 - x1, y2 - y1);
-      let (x3, y3) = (x2 - ay, y2 + ax);
-      let (x4, y4) = (x1 - ay, y1 + ax);
+      let (x3, y3) = (x2 + ay, y2 - ax);
+      let (x4, y4) = (x1 + ay, y1 - ax);
       if hs.contains(&(x3, y3)) && hs.contains(&(x4, y4)) {
         let s = ax * ax + ay * ay;
-        ans = max(ans, s);
+        ret = max(ret, s);
       }
     }
   }
-  ans
+  ret
 }
 
 #[test]
