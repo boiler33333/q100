@@ -12,10 +12,7 @@ fn main() {
 }
 
 fn solve(_: usize, xy: &[(i64, i64)]) -> i64 {
-  let mut hs = HashSet::new();
-  for &(x, y) in xy {
-    hs.insert((x, y));
-  }
+  let hs: HashSet<(i64, i64)> = xy.iter().cloned().collect();
   let mut ret = 0;
   for &(x1, y1) in xy {
     for &(x2, y2) in xy {
