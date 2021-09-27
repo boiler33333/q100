@@ -1,4 +1,5 @@
 use proconio::input;
+use std::collections::HashSet;
 use std::cmp::min;
 use std::i64::MAX;
 
@@ -6,26 +7,21 @@ fn main() {
   input! {
     n: usize,
     ab: [(i64, i64); n],
+  };
+  let mut hs = HashSet::new();
+  for &(a, b) in &ab {
+    hs.insert(a);
+    hs.insert(b);
   }
-  let ans = solve(&ab);
-  println!("{}", ans);
-}
-
-fn solve(ab: &Vec<(i64, i64)>) -> i64 {
-  let mut res = MAX;
-  let mut p = vec![];
-  for &(a, b) in ab {
-    p.push(a);
-    p.push(b);
-  }
-  for &s in &p {
-    for &g in &p {
-      let mut d = 0;
-      for &(a, b) in ab {
-        d += (a - s).abs() + (b - a).abs() + (g - b).abs();
+  let mut ans = MAX;
+  for &s in &hs {
+    for &t in & hs {
+      let mut sec = 0;
+      for &(a, b) in &ab {
+        sec += (t - b).abs() + (b - a).abs() + (a - s).abs();
       }
-      res = min(res, d)
+      ans = min(ans, sec);
     }
   }
-  res
+  println!("{}", ans);
 }
