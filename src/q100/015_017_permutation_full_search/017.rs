@@ -35,7 +35,7 @@ fn main() {
       }
     }
     if ok {
-      //斜め方向にコマが置かれていないか
+      //斜め方向に複数コマが置かれていないか
       let mut a = table.clone();
       let ok2 = diag(&mut a);
       a.reverse();
