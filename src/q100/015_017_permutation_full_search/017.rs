@@ -56,7 +56,7 @@ fn main() {
   }
 }
 
-// y = ax + b (a = -1, 0 <= b < 16
+// y = ax + b (a = -1, 0 <= b < 16)
   fn diag(table: &Vec<Vec<bool>>) -> bool {
     for b in 0..16 {
       let mut cnt = 0;
