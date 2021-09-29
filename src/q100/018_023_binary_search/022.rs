@@ -1,21 +1,22 @@
 use proconio::input;
 
 fn f(x: f64, p: f64) -> f64 {
-  x + 2.0f64.powf(-x/1.5) * p
+  x + p * 2f64.powf(-x/1.5)
 }
 
 fn main() {
   input! { p: f64 }
-  let mut left = 0.0;
-  let mut right = 1e18;
-  while right - left > 1e-8 {
-    let ml = (2.0 * left + right) / 3.0;
-    let mr = (left + 2.0 * right) / 3.0;
-    if f(ml, p) < f(mr, p) {
-      right = mr;
+  let mut low = 0.0;
+  let mut high = 1e18;
+  while high - low > 1e-8 {
+    let x1 = (2.0 * low + 1.0 * high) / 3.0;
+    let x2 = (1.0 * low + 2.0 * high) / 3.0;
+    if f(x1, p) < f(x2, p) {
+      high = x2;
     } else {
-      left = ml;
+      low = x1;
     }
   }
-  println!("{:.10}", f(left, p));
+  let ans = f(low, p);
+  println!("{:.10}", ans);
 }
