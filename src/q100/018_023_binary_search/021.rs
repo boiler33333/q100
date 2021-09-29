@@ -6,17 +6,17 @@ fn main() {
     n: usize,
     hs: [(usize, usize); n],
   }
-  let mut left = 0;
-  let mut right = MAX;
-  while right - left > 1 {
-    let mid = (left + right) / 2;
+  let mut low = 0;
+  let mut high = MAX;
+  while high - low > 1 {
+    let mid = (low + high)/2;
     let mut ok = true;
     let mut t = vec![0; n];
     for (i, &(h, s)) in hs.iter().enumerate() {
-      if mid < h {
-        ok = false;
-      } else {
+      if mid >= h {
         t[i] = (mid - h) / s;
+      } else {
+        ok = false;
       }
     }
     t.sort();
@@ -26,10 +26,10 @@ fn main() {
       }
     }
     if ok {
-      right = mid;
+      high = mid;
     } else {
-      left = mid;
+      low = mid;
     }
   }
-  println!("{}", right);
+  println!("{}", high);
 }
