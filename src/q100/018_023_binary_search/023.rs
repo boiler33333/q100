@@ -1,26 +1,5 @@
 use proconio::input;
 use std::cmp::max;
-use std::cmp::Ordering::{ Less, Equal, Greater };
-
-pub trait BinarySearch<T> {
-  fn lower_bound(&self, x: &T) -> usize;
-}
-
-impl<T: Ord> BinarySearch<T> for [T] {
-  fn lower_bound(&self, x: &T) -> usize {
-    let mut left = 0;
-    let mut right = self.len();
-    while left < right {
-      let mid = (left + right) / 2;
-      let ord = self[mid].cmp(x);
-      match ord {
-        Less => left = mid + 1,
-        Equal | Greater => right = mid,
-      }
-    }
-    left
-  }
-}
 
 fn main() {
   input! {
@@ -34,23 +13,24 @@ fn main() {
 fn solve(m: usize, p: &[usize]) -> usize {
   let mut p = p.to_vec();
   p.push(0);
-  let mut q = Vec::new();
+  let mut q = vec![];
   for &p1 in &p {
     for &p2 in &p {
       q.push(p1 + p2);
     }
   }
   q.sort();
-  let mut point = 0;
-  for &a in &q {
-    if a > m {
+  let n = q.len();
+  let mut ret = 0;
+  for i in 0..n {
+    if q[i] > m {
       break;
     }
-    let b = m - a;
-    let i = q.lower_bound(&b);
-    point = max(point, a + q[i-1]);
+    let v = m - q[i];
+    let j = q.binary_search(&v).unwrap_or_else(|x| x);
+    ret = max(ret, q[i] + q[j-1]);
   }
-  point
+  ret
 }
 
 #[test]
