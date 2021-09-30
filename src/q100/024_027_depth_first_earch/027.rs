@@ -2,50 +2,48 @@ use proconio::input;
 use std::cmp::max;
 
 fn dfs(
-  h: usize,
   w: usize,
-  g: &mut Vec<Vec<usize>>,
-  y: usize,
-  x: usize,
-  cnt: usize,
+  h: usize,
+  table: &mut Vec<Vec<usize>>,
+  (ux, uy): (usize, usize),
   ans: &mut usize,
+  cnt: usize,
 ) {
-  g[y][x] = 0;
+  table[uy][ux] = 0;
   *ans = max(*ans, cnt);
   for i in 0..4 {
-    if y == 0 && i == 2 || y == h-1 && i == 0 {
+    if uy == 0 && i == 0 || uy == h-1 && i == 2 {
       continue;
     }
-    if x == 0 && i == 3 || x == w-1 && i == 1 {
+    if ux == 0 && i == 3 || ux == w-1 && i == 1 {
       continue;
     }
-    let (x2 ,y2) = match i {
-      0 => (x + 0, y + 1),
-      1 => (x + 1, y + 0),
-      2 => (x + 0, y - 1),
-      3 => (x - 1, y + 0),
-      _ => (x + 0, y + 0),
+    let (vx, vy) = match i {
+      0 => (ux + 0, uy - 1),
+      1 => (ux + 1, uy + 0),
+      2 => (ux + 0, uy + 1),
+      3 => (ux - 1, uy + 0),
+      _ => unreachable!(),
     };
-    if g[y2][x2] == 0 {
-      continue;
+    if table[vy][vx] > 0 {
+      dfs(w, h, table, (vx, vy), ans, cnt+1);
     }
-    dfs(h, w, g, y2, x2, cnt+1, ans);
   }
-  g[y][x] = 1;
+  table[uy][ux] = 1;
 }
 
 fn main() {
   input! {
-    n: usize,
-    m: usize,
-    mut g: [[usize; m]; n],
+    w: usize,
+    h: usize,
+    mut table: [[usize; w]; h],
   }
   let mut ans = 0;
-  for y in 0..n {
-    for x in 0..m {
-      if g[y][x] == 1 {
-        dfs(n, m, &mut g, y, x, 1, &mut ans);
-      } 
+  for y in 0..h {
+    for x in 0..w {
+      if table[y][x] > 0 {
+        dfs(w, h, &mut table, (x,y), &mut ans, 1);
+      }
     }
   }
   println!("{}", ans);
