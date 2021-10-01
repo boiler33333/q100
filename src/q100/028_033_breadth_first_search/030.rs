@@ -1,18 +1,17 @@
 use proconio::input;
 use std::collections::VecDeque;
+use std::usize::MAX;
 
 fn bfs(
   h: usize,
   w: usize,
-  wall: &Vec<Vec<bool>>,
-  sy: usize,
-  sx: usize,
-  gy: usize,
-  gx: usize,
-) -> Option<usize> {
-  let mut dist = vec![vec![None; w]; h];
-  let mut que: VecDeque<(usize, usize)> = VecDeque::new();
-  dist[sy][sx] = Some(0);
+  table: &Vec<Vec<bool>>,
+  (sx, sy): (usize, usize),
+  (gx, gy): (usize, usize),
+) -> usize {
+  let mut dist = vec![vec![MAX; w]; h];
+  let mut que = VecDeque::new();
+  dist[sy][sx] = 0;
   que.push_back((sx, sy));
   while let Some((ux, uy)) = que.pop_front() {
     for i in 0..4 {
@@ -26,13 +25,13 @@ fn bfs(
         0 => (ux + 0, uy - 1),
         1 => (ux + 1, uy + 0),
         2 => (ux + 0, uy + 1),
-        _ => (ux - 1, uy + 0),
+        3 => (ux - 1, uy + 0),
+        _ => unreachable!(),
       };
-      if wall[vy][vx] || dist[vy][vx] != None {
+      if table[vy][vx] || dist[vy][vx] < MAX {
         continue;
       }
-      let d = dist[uy][ux].unwrap();
-      dist[vy][vx] = Some(d+1);
+      dist[vy][vx] = dist[uy][ux] + 1;
       que.push_back((vx, vy));
     }
   }
@@ -42,29 +41,26 @@ fn bfs(
 fn main() {
   input! {
     h: usize, w: usize, n: usize,
-    table: [String; h],
+    s: [String; h],
   }
-  let mut wall: Vec<Vec<bool>> = vec![vec![false; w]; h];
-  let mut point: Vec<(usize, usize)> = vec![(0, 0); n+1];
+  let mut p = vec![(0, 0); n+1];
+  let mut table = vec![vec![false; w]; h];
   for y in 0..h {
-    for (x, c) in table[y].chars().enumerate() {
+    for (x, c) in s[y].chars().enumerate() {
       match c {
         '.' => {},
-        'X' => wall[y][x] = true,
-        'S' => point[0] = (x, y),
-        num => {
-          let i = num.to_digit(10).unwrap() as usize;
-          point[i] = (x, y);
-        },
+        'X' => table[y][x] = true,
+        'S' => p[0] = (x, y),
+        _ => {
+          let i = c.to_digit(10).unwrap() as usize;
+          p[i] = (x, y);
+        }
       }
     }
-  }
+  } 
   let mut ans = 0;
-  for i in 0..n {
-    let (sx, sy) = point[i];
-    let (gx, gy) = point[i+1];
-    let d = bfs(h, w, &wall, sy, sx, gy, gx);
-    ans += d.unwrap_or(0);
+  for i in 1..=n {
+    ans += bfs(h, w, &table, p[i-1], p[i]);
   }
   println!("{}", ans);
 }
