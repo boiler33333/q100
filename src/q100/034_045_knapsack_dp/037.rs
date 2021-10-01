@@ -17,19 +17,19 @@ fn read<T: FromStr>() -> T {
 fn main() {
   let n: usize = read();
   let m: usize = read();
-  let mut c = vec![0; m];
+  let mut c = vec![0; n];
   for i in 0..m {
     c[i] = read();
   }
-  c.sort();
-  let mut dp = vec![MAX; n+1];
-  dp[0] = 0;
-  for i in 0..m {
-    for j in 0..=n {
-      if j >= c[i] {
-        dp[j] = min(dp[j], dp[j-c[i]]+1);
+  let mut dp = vec![vec![MAX; n+1]; m+1];
+  dp[0][0] = 0;
+  for j in 0..m {
+    for i in 0..=n {
+      if i >= c[j] {
+        dp[j+1][i] = min(dp[j+1][i], dp[j+1][i-c[j]] + 1);
       }
+      dp[j+1][i] = min(dp[j+1][i], dp[j][i]);
     }
   }
-  println!("{}", dp[n]);
+  println!("{}", dp[m][n]);
 }
