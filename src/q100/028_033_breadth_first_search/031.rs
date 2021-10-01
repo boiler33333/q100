@@ -1,22 +1,21 @@
 use proconio::input;
 use std::collections::VecDeque;
+use std::usize::MAX;
 
 fn bfs(
   h: usize,
   w: usize,
-  building: &Vec<Vec<usize>>,
-  sy: usize,
-  sx: usize,
+  table: &Vec<Vec<usize>>,
 ) -> usize {
   let mut cnt = 0;
-  let mut seen = vec![vec![false; w]; h];
-  let mut que: VecDeque<(usize, usize)> = VecDeque::new();
-  seen[sy][sx] = true;
-  que.push_back((sx, sy));
+  let mut dist = vec![vec![MAX; w]; h];
+  let mut que = VecDeque::new();
+  dist[0][0] = 0;
+  que.push_back((0, 0));
   while let Some((ux, uy)) = que.pop_front() {
     if uy % 2 == 0 {
       for i in 0..6 {
-        if uy == 0 && i <= 1 || uy == h-1 && 4 <= i {
+        if uy == 0 && i <= 1 || uy == h-1 && i >= 4 {
           continue;
         }
         if ux == 0 && i % 2 == 0 || ux == w-1 && i == 3 {
@@ -28,39 +27,41 @@ fn bfs(
           2 => (ux - 1, uy + 0),
           3 => (ux + 1, uy + 0),
           4 => (ux - 1, uy + 1),
-          _ => (ux + 0, uy + 1),
+          5 => (ux + 0, uy + 1),
+          _ => unreachable!(),
         };
-        if building[vy][vx] == 1 {
+        if table[vy][vx] > 0 {
           cnt += 1;
           continue;
         }
-        if !seen[vy][vx] {
-          seen[vy][vx] = true;
+        if dist[vy][vx] == MAX {
+          dist[vy][vx] = dist[uy][ux] + 1;
           que.push_back((vx, vy));
         }
       }
     } else {
       for i in 0..6 {
-        if uy == 0 && i <= 1 || uy == h-1 && 4 <= i {
+        if uy == 0 && i <= 1 || uy == h-1 && i >= 4 {
           continue;
         }
         if ux == 0 && i == 2 || ux == w-1 && i % 2 == 1 {
           continue;
         }
         let (vx, vy) = match i {
-          0 => (ux - 0, uy - 1),
+          0 => (ux + 0, uy - 1),
           1 => (ux + 1, uy - 1),
           2 => (ux - 1, uy + 0),
           3 => (ux + 1, uy + 0),
-          4 => (ux - 0, uy + 1),
-          _ => (ux + 1, uy + 1),
+          4 => (ux + 0, uy + 1),
+          5 => (ux + 1, uy + 1),
+          _ => unreachable!(),
         };
-        if building[vy][vx] == 1 {
+        if table[vy][vx] > 0 {
           cnt += 1;
           continue;
         }
-        if !seen[vy][vx] {
-          seen[vy][vx] = true;
+        if dist[vy][vx] == MAX {
+          dist[vy][vx] = dist[uy][ux] + 1;
           que.push_back((vx, vy));
         }
       }
@@ -71,18 +72,15 @@ fn bfs(
 
 fn main() {
   input! {
-    mut w: usize,
-    mut h: usize,
-    mut table: [[usize; w]; h],
+    w: usize, h: usize,
+    a: [[usize; w]; h],
   }
-  table.insert(0, vec![0; w]);
-  table.push(vec![0; w]);
-  h = table.len();
+  let mut table = vec![vec![0; w+2]; h+2];
   for y in 0..h {
-    table[y].insert(0, 0);
-    table[y].push(0);
+    for x in 0..w {
+      table[y+1][x+1] = a[y][x];
+    }
   }
-  w = table[0].len();
-  let ans = bfs(h, w, &table, 0, 0);
+  let ans = bfs(h+2, w+2, &mut table);
   println!("{}", ans);
 }
