@@ -16,16 +16,15 @@ fn read<T: FromStr>() -> T {
 fn bfs(
   n: usize,
   graph: &Vec<Vec<usize>>,
-  s: usize,
-) -> Vec<Option<usize>> {
-  let mut dist = vec![None; n];
-  let mut que: VecDeque<usize> = VecDeque::new();
-  dist[s] = Some(0);
-  que.push_back(s);
+) -> Vec<i64> {
+  let mut dist = vec![-1; n];
+  let mut que = VecDeque::new();
+  dist[0] = 0;
+  que.push_back(0);
   while let Some(u) = que.pop_front() {
     for &v in &graph[u] {
-      if dist[v] == None {
-        dist[v] = dist[u].and_then(|x| Some(x+1));
+      if dist[v] == -1 {
+        dist[v] = dist[u] + 1;
         que.push_back(v);
       }
     }
@@ -38,18 +37,14 @@ fn main() {
   let mut graph = vec![vec![]; n];
   for _ in 0..n {
     let u: usize = read();
-    let d: usize = read();
-    for _ in 0..d {
+    let k: usize = read();
+    for _ in 0..k {
       let v: usize = read();
       graph[u-1].push(v-1);
     }
   }
-  let dist = bfs(n, &graph, 0);
-  for i in 0..n {
-    if let Some(d) = dist[i] {
-      println!("{} {}", i+1, d);
-    } else {
-      println!("{} -1", i+1);
-    }
+  let dist = bfs(n, &graph);
+  for (i, &v) in dist.iter().enumerate() {
+    println!("{} {}", i+1, v);
   }
 }
