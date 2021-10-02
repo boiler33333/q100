@@ -5,10 +5,10 @@ fn main() {
     n: usize,
     a: [usize; n],
   }
-  let mut dp: Vec<Vec<usize>> = vec![vec![0; 21]; n-1];
+  let mut dp = vec![vec![0usize; 21]; n];
   dp[0][a[0]] = 1;
   for i in 1..n-1 {
-    for j in 0..21 {
+    for j in 0..=20 {
       if j >= a[i] {
         dp[i][j] += dp[i-1][j-a[i]];
       }
