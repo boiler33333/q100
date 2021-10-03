@@ -13,14 +13,29 @@ fn read<T: FromStr>() -> T {
   s.parse().ok().expect("failed parsing")
 }
 
-fn solve(n: usize, w: &Vec<i64>) {
+fn main() {
+  loop {
+    let n: usize = read();
+    if n == 0 {
+      break;
+    }
+    let mut w = vec![0; n];
+    for i in 0..n {
+      w[i] = read();
+    }
+    let ans = solve(n, &w);
+    println!("{}", ans);
+  }
+}
+
+fn solve(n: usize, w: &[i64]) -> usize {
   let mut dp = vec![vec![0; n]; n];
   for d in 2..=n {
     if d % 2 == 1 {
       continue;
     }
     for l in 0..=n-d {
-      let r = l + d - 1; 
+      let r = l + d - 1;
       if dp[l+1][r-1] == d - 2 {
         if (w[l] - w[r]).abs() <= 1 {
           dp[l][r] = d;
@@ -34,22 +49,8 @@ fn solve(n: usize, w: &Vec<i64>) {
     }
   }
   if n % 2 == 1 {
-    println!("{}", max(dp[0][n-2], dp[1][n-1]));
+    max(dp[0][n-2], dp[1][n-1])
   } else {
-    println!("{}", dp[0][n-1]);
-  }
-}
-
-fn main() {
-  loop {
-    let n: usize = read();
-    if n == 0 {
-      break;
-    }
-    let mut w: Vec<i64> = vec![0; n];
-    for i in 0..n {
-      w[i] = read();
-    }
-    solve(n, &w);
+    dp[0][n-1]
   }
 }
