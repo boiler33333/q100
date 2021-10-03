@@ -1,5 +1,4 @@
-use std::cmp::max;
-use std::cmp::min;
+use std::cmp::{max, min};
 use std::io::*;
 use std::str::FromStr;
 use std::i64::MAX;
@@ -22,20 +21,21 @@ fn main() {
     if n == 0 && m == 0 {
       break;
     }
-    let mut c: Vec<i64> = vec![0; m];
-    let mut x: Vec<i64> = vec![0; n];
+    let mut c = vec![0; m];
     for j in 0..m {
       c[j] = read();
     }
+    let mut x = vec![0; n];
     for i in 0..n {
       x[i] = read();
     }
-    solve(n, m, &c, &x);
+    let ans = solve(n, m, &c, &x);
+    println!("{}", ans);
   }
 }
 
-fn solve(n: usize, m: usize, c: &Vec<i64>, x: &Vec<i64>) {
-  let mut dp: Vec<Vec<i64>> = vec![vec![MAX; 256]; n+1];
+fn solve(n: usize, m: usize, c: &[i64], x: &[i64]) -> i64 {
+  let mut dp = vec![vec![MAX; 256]; n+1];
   dp[0][128] = 0;
   for i in 0..n {
     for y in 0..256 {
@@ -51,6 +51,5 @@ fn solve(n: usize, m: usize, c: &Vec<i64>, x: &Vec<i64>) {
       }
     }
   }
-  let ans = dp[n].iter().min().unwrap();
-  println!("{}", ans);
+  *dp[n].iter().min().unwrap()
 }
