@@ -17,17 +17,17 @@ fn read<T: FromStr>() -> T {
 fn dijkstra(
   n: usize,
   graph: &Vec<Vec<(usize, usize)>>,
-  start: usize
+  start: usize,
 ) -> Vec<usize> {
   let mut dist = vec![MAX; n];
-  let mut que: VecDeque<usize> = VecDeque::new();
-  que.push_back(start);
+  let mut que = VecDeque::new();
   dist[start] = 0;
-  while let Some(from) = que.pop_front() {
-    for &(to, w) in &graph[from] {
-      if dist[to] > dist[from] + w {
-        dist[to] = dist[from] + w;
-        que.push_back(to);
+  que.push_back(start);
+  while let Some(u) = que.pop_front() {
+    for &(v, d) in &graph[u] {
+      if dist[v] > dist[u] + d  {
+        dist[v] = dist[u] + d;
+        que.push_back(v);
       }
     }
   }
@@ -38,19 +38,19 @@ fn main() {
   let v: usize = read();
   let e: usize = read();
   let r: usize = read();
-  let mut g: Vec<Vec<(usize, usize)>> = vec![vec![]; v];
+  let mut graph = vec![vec![]; v];
   for _ in 0..e {
     let s: usize = read();
     let t: usize = read();
     let d: usize = read();
-    g[s].push((t, d));
+    graph[s].push((t, d));
   }
-  let dist = dijkstra(v, &g, r);
-  for ans in dist {
-    if ans < MAX {
-      println!("{}", ans);
-    } else {
+  let ans = dijkstra(v, &graph, r);
+  for i in 0..v {
+    if ans[i] == MAX {
       println!("INF");
+    } else {
+      println!("{}", ans[i]);
     }
   }
 }
