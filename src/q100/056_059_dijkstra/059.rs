@@ -4,18 +4,18 @@ use std::usize::MAX;
 
 fn bfs(
   n: usize,
-  graph: &Vec<Vec<usize>>,
+  graph: &Vec<Vec<(usize, usize)>>,
   start: usize,
-) -> Vec<i64> {
-  let mut dist = vec![-1;  n];
-  let mut que: VecDeque<usize> = VecDeque::new();
+) -> Vec<usize> {
+  let mut dist = vec![MAX; n];
+  let mut que = VecDeque::new();
   dist[start] = 0;
   que.push_back(start);
-  while let Some(from) = que.pop_front() {
-    for &to in &graph[from] {
-      if dist[to] == -1 {
-        dist[to] = dist[from] + 1;
-        que.push_back(to);
+  while let Some(u) = que.pop_front() {
+    for &(v, _) in &graph[u] {
+      if dist[v] == MAX {
+        dist[v] = dist[u] + 1;
+        que.push_back(v);
       }
     }
   }
@@ -29,14 +29,14 @@ fn dijkstra(
   goal: usize,
 ) -> usize {
   let mut dist = vec![MAX; n];
-  let mut que: VecDeque<usize> = VecDeque::new();
-  que.push_back(start);
+  let mut que = VecDeque::new();
   dist[start] = 0;
-  while let Some(from) = que.pop_front() {
-    for &(to, w) in &graph[from] {
-      if dist[to] > dist[from] + w {
-        dist[to] = dist[from] + w;
-        que.push_back(to);
+  que.push_back(start);
+  while let Some(u) = que.pop_front() {
+    for &(v, d) in &graph[u] {
+      if dist[v] > dist[u] + d  {
+        dist[v] = dist[u] + d;
+        que.push_back(v);
       }
     }
   }
@@ -45,29 +45,28 @@ fn dijkstra(
 
 fn main() {
   input! {
-    n: usize, //町の数
-    k: usize, //道路の数
-    cr: [(usize, i64); n], //運賃、タクシーで移動できる道路数
-    ab: [(usize, usize); k], //道路
+    n: usize, //町数
+    k: usize, //道路数
+    cr: [(usize, usize); n], //タクシーの運賃、連続して通れる最大道路数
+    ab: [(usize, usize); k],
   }
-  let mut graph: Vec<Vec<usize>> = vec![vec![]; n];
+  let mut graph = vec![vec![]; n];
   for &(a, b) in &ab {
-    graph[a-1].push(b-1);
-    graph[b-1].push(a-1);
+    graph[a-1].push((b-1, 0));
+    graph[b-1].push((a-1, 0));
   }
-  //タクシーで行ける街まで料金c円の道があるとする
-  let mut graph2: Vec<Vec<(usize, usize)>> = vec![vec![]; n];
-  for i in 0..n {
-    let dist = bfs(n, &graph, i);
-    let (c, r) = cr[i];
-    for j in 0..n {
-      if i == j {
+  //タクシーで行ける町まで料金c円の道があるとする
+  let mut graph2 = vec![vec![]; n];
+  for u in 0..n {
+    let (c, r) = cr[u];
+    let dist = bfs(n, &graph, u);
+    for v in 0..n {
+      if u == v {
         continue;
       }
-      if dist[j] > r {
-        continue;
+      if dist[v] <= r {
+        graph2[u].push((v, c));
       }
-      graph2[i].push((j, c))
     }
   }
   let ans = dijkstra(n, &graph2, 0, n-1);
