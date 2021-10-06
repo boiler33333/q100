@@ -39,31 +39,37 @@ impl UnionFind {
 
 fn main() {
   input! {
-    n: usize, m: usize,
+    n: usize,
+    m: usize,
     mut k: usize,
     mut abc: [(usize, usize, usize); m],
   }
-  let ans = solve(n, k, &mut abc);
+  let ans = solve(n, k, &abc);
   println!("{}", ans);
 }
 
-fn solve(n: usize, k: usize, abc: &mut Vec<(usize, usize, usize)>) -> usize {
+fn solve(
+  n: usize,
+  k: usize,
+  abc: &[(usize, usize, usize)],
+) -> usize {
+  let mut k = k;
+  let mut abc = abc.to_vec();
   abc.sort_by(|x, y| x.2.cmp(&y.2));
   let mut uf = UnionFind::new(n);
-  let mut i = k;
-  let mut res = 0;
-  for &mut (a, b, c) in abc {
-    if i >= n {
-      break;
+  let mut ret = 0;
+  for (a, b, c) in abc {
+    if k >= n {
+      break
     }
     if uf.is_same(a-1, b-1) {
       continue;
     }
     uf.unite(a-1, b-1);
-    i += 1;
-    res += c;
+    ret += c;
+    k += 1;
   }
-  res
+  ret
 }
 
 #[test]
