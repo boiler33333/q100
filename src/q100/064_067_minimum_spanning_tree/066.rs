@@ -69,28 +69,35 @@ fn main() {
   }
 }
 
-fn dist((x1,y1,z1,r1): (f64,f64,f64,f64), (x2,y2,z2,r2): (f64,f64,f64,f64)) -> f64 {
-  let d = ((x2 - x1).powi(2) + (y2 - y1).powi(2) + (z2 -z1).powi(2)).sqrt() - (r1 + r2);
-  if d > 0.0 { d } else { 0.0 }
-}
-
-fn solve(n: usize, xyzr: &[(f64,f64,f64,f64)]) -> f64 {
-  let mut edge = vec![];
-  for i in 0..n {
-    for j in i+1..n {
-      let d = dist(xyzr[i], xyzr[j]);
-      edge.push((i, j, d));
+fn solve(
+  n: usize,
+  xyzr: &[(f64,f64,f64,f64)],
+) -> f64 {
+  let mut edges = vec![];
+  for a in 0..n {
+    for b in a+1..n {
+      let (x1, y1, z1, r1) = xyzr[a];
+      let (x2, y2, z2, r2) = xyzr[b];
+      let dx = x2 - x1;
+      let dy = y2 - y1;
+      let dz = z2 - z1;
+      let c = (dx*dx + dy*dy + dz*dz).sqrt() - (r1+r2);
+      if c > 0.0 {
+        edges.push((a, b, c));
+      } else {
+        edges.push((a, b, 0.0));
+      }
     }
   }
-  edge.sort_by(|a, b| a.2.partial_cmp(&b.2).unwrap());
+  edges.sort_by(|a, b| a.2.partial_cmp(&b.2).unwrap());
   let mut uf = UnionFind::new(n);
-  let mut res = 0.0;
-  for &(a, b, d) in &edge {
+  let mut ret = 0.0;
+  for (a, b, c) in edges {
     if uf.is_same(a, b) {
       continue;
     }
     uf.unite(a, b);
-    res += d;
+    ret += c;
   }
-  res
+  ret
 }
