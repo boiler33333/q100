@@ -3,9 +3,9 @@ use proconio::input;
 fn main() {
   input! {
     n: usize,
-    a: [[usize; n]; n],
+    mut a: [[usize; n]; n],
   }
-  let mut needable = vec![vec![true; n]; n];
+  let mut available = vec![vec![true; n]; n];
   for k in 0..n {
     for i in 0..n {
       for j in 0..n {
@@ -17,16 +17,16 @@ fn main() {
           continue;
         }
         if a[i][j] == a[i][k] + a[k][j] {
-          needable[i][j] = false;
+          available[i][j] = false;
         }
       }
     }
   }
   let mut ans = 0;
-  for y in 0..n {
-    for x in 0..n {
-      if needable[y][x] {
-        ans += a[y][x];
+  for i in 0..n {
+    for j in 0..n {
+      if available[i][j] {
+        ans += a[i][j];
       }
     }
   }
