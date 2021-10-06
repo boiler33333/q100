@@ -1,13 +1,13 @@
 use proconio::input;
 
 struct UnionFind {
-  par: Vec<Option<usize>>, //parent
-  siz: Vec<usize>,         //size
+  par: Vec<Option<usize>>, // parent
+  siz: Vec<usize>,         // size
 }
 
 impl UnionFind {
   fn new(n: usize) -> Self {
-    UnionFind{ par: vec![None; n], siz: vec![1; n] }
+    UnionFind{ par: vec![None; n+1], siz: vec![1; n+1] }
   }
 
   fn root(&self, x: usize) -> usize {
@@ -39,39 +39,40 @@ impl UnionFind {
 
 fn main() {
   input! {
-    n: usize,                 
-    town: [(i64, i64); n],
+    n: usize,
+    xy: [(i64, i64); n],
   }
-  let mut x = vec![(0, 0); n];
-  let mut y = vec![(0, 0); n];
-  for (i, &(xi, yi)) in town.iter().enumerate() {
-    x[i] = (xi, i);
-    y[i] = (yi, i);
+  let mut x = vec![];
+  let mut y = vec![];
+  for i in 0..n {
+    let (xi, yi) = xy[i];
+    x.push((xi, i));
+    y.push((yi, i));
   }
   x.sort();
   y.sort();
-  let mut edge: Vec<(i64, usize, usize)> = Vec::new();
-  for i in 0..n-1 {
-    let w = x[i+1].0 - x[i].0;
-    let s = x[i].1;
-    let t = x[i+1].1;
-    edge.push((w, s, t));
+  let mut edges = vec![];
+  for i in 1..n {
+    let a = x[i-1].1;
+    let b = x[i].1;
+    let c = x[i].0 - x[i-1].0;
+    edges.push((a, b, c));
   }
-  for i in 0..n-1 {
-    let w = y[i+1].0 - y[i].0;
-    let s = y[i].1;
-    let t = y[i+1].1;
-    edge.push((w, s, t));
+  for i in 1..n {
+    let a = y[i-1].1;
+    let b = y[i].1;
+    let c = y[i].0 - y[i-1].0;
+    edges.push((a, b, c));
   }
-  edge.sort();
-  let mut ans = 0;
+  edges.sort_by(|a, b| a.2.cmp(&b.2));
   let mut uf = UnionFind::new(n);
-  for (w, s, t) in edge {
-    if uf.is_same(s, t) {
+  let mut ans = 0;
+  for (a, b, c) in edges {
+    if uf.is_same(a, b) {
       continue;
     }
-    ans += w;
-    uf.unite(s, t);
+    uf.unite(a, b);
+    ans += c;
   }
   println!("{}", ans);
 }
