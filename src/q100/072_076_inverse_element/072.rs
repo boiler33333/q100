@@ -27,9 +27,7 @@ fn pow(x: usize, n: usize) -> usize {
 }
 
 fn main() {
-  input! { mut w: usize, mut h: usize }
-  w -= 1;
-  h -= 1;
-  let ans = combination(w+h, w);
+  input! { w: usize, h: usize }
+  let ans = combination(w+h-2, w-1);
   println!("{}", ans);
 }
