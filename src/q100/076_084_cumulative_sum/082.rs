@@ -13,10 +13,10 @@ fn read<T: FromStr>() -> T {
 }
 
 fn second(s: &str) -> usize {
-  let b: Vec<usize> = s.bytes().map(|b| (b - 48) as usize).collect();
-  let hh = 10 * b[0] + b[1];
-  let mm = 10 * b[3] + b[4];
-  let ss = 10 * b[6] + b[7];
+  let x: Vec<usize> = s.bytes().map(|b| (b - 48) as usize).collect();
+  let hh = 10 * x[0] + x[1];
+  let mm = 10 * x[3] + x[4];
+  let ss = 10 * x[6] + x[7];
   3600 * hh + 60 * mm + ss
 }
 
