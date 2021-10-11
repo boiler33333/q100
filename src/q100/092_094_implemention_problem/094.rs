@@ -27,14 +27,18 @@ fn main() {
       let s: usize = read();
       ps.push((p, s));
     }
-    let vec = solve(w, d, &ps);
-    let vec = vec.iter().map(|v| v.to_string()).collect::<Vec<String>>();
-    let ans = vec.join(" ");
+    let ans: Vec<usize> = solve(w, d, &ps);
+    let ans: Vec<String> = ans.iter().map(|x| x.to_string()).collect();
+    let ans: String = ans.join(" ");
     println!("{}", ans);
   }
 }
 
-fn solve(w: usize, d: usize, ps: &[(usize, usize)]) -> Vec<usize> {
+fn solve(
+  w: usize,
+  d: usize,
+  ps: &[(usize, usize)],
+) -> Vec<usize> {
   let mut pieces = vec![(w, d)];
   for &(p, s) in ps {
     let piece = pieces[p-1];
@@ -43,21 +47,21 @@ fn solve(w: usize, d: usize, ps: &[(usize, usize)]) -> Vec<usize> {
     pieces.push(small);
     pieces.push(large);
   }
-  let mut area: Vec<usize> = pieces.iter().map(|&(w, d)| w * d).collect();
+  let mut area: Vec<usize> = pieces.iter().map(|(w, d)| w * d).collect();
   area.sort();
   area
 }
 
 fn cut((w, d): (usize, usize), s: usize) -> ((usize, usize), (usize, usize)) {
-  let s =  s % (w + d);
+  let s = s % (w + d);
   if s < w {
-    let w1 = s;
-    let w2 = w - s;
-    ((min(w1, w2), d), (max(w1, w2), d))
+    let w1 = min(s, w - s);
+    let w2 = max(s, w - s);
+    ((w1, d), (w2, d))
   } else {
-    let h1 = s - w;
-    let h2 = w + d - s;
-    ((w, min(h1, h2)), (w, max(h1, h2)))
+    let d1 = min(s - w, w + d - s);
+    let d2 = max(s - w, w + d - s);
+    ((w, d1), (w, d2))
   }
 }
 
