@@ -9,8 +9,8 @@ fn lcm(a: usize, b: usize) -> usize {
 //  ２つ以上の正の整数に共通な約数
 //  gcd(12, 18) -> 6
 fn gcd(a: usize, b: usize) -> usize {
-  if a % b == 0 {
-    return b;
+  if b == 0 {
+    return a;
   }
   gcd(b, a % b)
 }
